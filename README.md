@@ -11,7 +11,7 @@ A lightweight, secure Python automation script designed to run as a 24-hour Cron
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com
+   git clone https://github.com/sunjit41/bluehost-db-cleaner.git
    cd bluehost-db-cleaner
    ```
 
