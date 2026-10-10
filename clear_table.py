@@ -1,14 +1,14 @@
 import os
 import mysql.connector
 from mysql.connector import Error
-from dotenv import load_load  # Loads environment variables from a .env file
+from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
 
-def delete_table_data():
+def delete_old_data():
     try:
-        # Establish connection using environment variables
+        # Connect to BlueHost MySQL Database
         connection = mysql.connector.connect(
             host=os.getenv('DB_HOST', 'localhost'),
             database=os.getenv('DB_NAME'),
@@ -19,14 +19,18 @@ def delete_table_data():
         if connection.is_connected():
             cursor = connection.cursor()
             table_name = os.getenv('DB_TABLE')
+            date_column = os.getenv('DB_DATE_COLUMN') # e.g., 'created_at' or 'timestamp'
             
-            # Use safe formatting for table names (SQL parameters don't support table names directly)
-            query = f"DELETE FROM `{table_name}`;"
+            # SQL query to safely target rows older than 24 hours
+            query = f"""
+                DELETE FROM `{table_name}` 
+                WHERE `{date_column}` < NOW() - INTERVAL 1 DAY;
+            """
             
             cursor.execute(query)
             connection.commit()
             
-            print(f"Success: Wiped table '{table_name}'. Rows affected: {cursor.rowcount}")
+            print(f"Success: Cleaned table '{table_name}'. Removed {cursor.rowcount} rows older than 24 hours.")
 
     except Error as e:
         print(f"Database Error: {e}")
@@ -38,4 +42,4 @@ def delete_table_data():
             print("MySQL connection securely closed.")
 
 if __name__ == "__main__":
-    delete_table_data()
+    delete_old_data()
